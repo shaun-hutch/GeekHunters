@@ -40,3 +40,4 @@ google-services.json
 
 # dotCover
 *.dotCover
+/GeekHunters.Web/GeekHunters.Web/desktop.ini
