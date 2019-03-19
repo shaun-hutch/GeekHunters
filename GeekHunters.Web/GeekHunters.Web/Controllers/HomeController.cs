@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GeekHunters.Web.Code;
+using GeekHunters.Web.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +13,11 @@ namespace GeekHunters.Web.Controllers
         // GET: Home
         public ActionResult Index()
         {
+            DB db = DB.Instance;
+            List<Candidate> candidates = db.GetCandidates();
+
+
+
             return View("Home");
         }
     }
