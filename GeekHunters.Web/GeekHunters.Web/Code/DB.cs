@@ -10,7 +10,6 @@ namespace GeekHunters.Web.Code
     public class DB
     {
         private static DB instance;
-        private static SQLiteConnection con;
 
         private DB() { }
 
@@ -23,62 +22,80 @@ namespace GeekHunters.Web.Code
                     instance = new DB();
                 }
 
-                if (con == null)
-                {
-                    Load();
-                }
                 return instance;
             }
         }
 
-        private static void Load()
+        private static SQLiteConnection Load()
         {
             //Path relative to file
             string dbPath = HttpContext.Current.Server.MapPath("~");
-            
-
-
-            con = new SQLiteConnection($"Data Source={Path.Combine(dbPath, "GeekHunter.sqlite")}", true);
+            return new SQLiteConnection($"Data Source={Path.Combine(dbPath, "GeekHunter.sqlite")}", true);
         }
 
         public List<Candidate> GetCandidates()
         {
-            con.Open();
-            SQLiteCommand cmd = new SQLiteCommand("SELECT Id, FirstName, LastName FROM Candidate", con);
-            SQLiteDataReader reader = cmd.ExecuteReader();
             List<Candidate> candidates = new List<Candidate>();
-
-            while (reader.Read())
+            try
             {
-                candidates.Add(new Candidate()
+                using (SQLiteConnection con = Load())
                 {
-                    Id = int.Parse(reader["Id"].ToString()),
-                    FirstName = reader["FirstName"].ToString(),
-                    LastName = reader["LastName"].ToString()
-                });
+                    con.Open();
+                    using (SQLiteCommand cmd = new SQLiteCommand(con))
+                    {
+                        cmd.CommandText = "SELECT Id, FirstName, LastName FROM Candidate";
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            candidates.Add(new Candidate()
+                            {
+                                Id = int.Parse(reader["Id"].ToString()),
+                                FirstName = reader["FirstName"].ToString(),
+                                LastName = reader["LastName"].ToString()
+                            });
+                        }
+                    }
+                    con.Close();
+                }
             }
 
-            con.Close();
+            catch (SQLiteException ex)
+            {
+                return new List<Candidate> { new Candidate() { Error = ex.Message } };
+            }
             return candidates;
         }
 
         public List<Skill> GetSkills()
         {
-            con.Open();
-            SQLiteCommand cmd = new SQLiteCommand("SELECT Id, Name FROM Skill", con);
-            SQLiteDataReader reader = cmd.ExecuteReader();
             List<Skill> skills = new List<Skill>();
-
-            while (reader.Read())
+            try
             {
-                skills.Add(new Skill()
+                using (SQLiteConnection con = Load())
                 {
-                    Id = int.Parse(reader["Id"].ToString()),
-                    Name = reader["Name"].ToString()
-                });
+                    con.Open();
+                    using (SQLiteCommand cmd = new SQLiteCommand(con))
+                    {
+                        cmd.CommandText = "SELECT Id, Name FROM Skill";
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            skills.Add(new Skill()
+                            {
+                                Id = int.Parse(reader["Id"].ToString()),
+                                Name = reader["Name"].ToString()
+                            });
+                        }
+
+                    }
+                    con.Close();
+                }
             }
 
-            con.Close();
+            catch (SQLiteException ex)
+            {
+                return new List<Skill> { new Skill() { Error = ex.Message } };
+            }
             return skills;
         }
 
