@@ -9,12 +9,18 @@
     width: 100%;
 }
 
-.selected {
-    background: #64b5f6 !important;
-}
 
 #skillList {
     .collection-item {
-        cursor: pointer; 
+        cursor: pointer;
+        -webkit-transition: all 0.3s linear;
+        -moz-transition: all 0.3s linear;
+        -o-transition: all 0.3s linear;
+        transition: all 0.3s linear;
+    }
+
+    .selected {
+        background: #64b5f6;
+        color: white;
     }
 }

@@ -1,1 +1,1 @@
-﻿#main{max-width:80%;margin:auto}.select-validate{color:red;float:left;width:100%}.selected{background:#64b5f6 !important}#skillList .collection-item{cursor:pointer}
+﻿#main{max-width:80%;margin:auto}.select-validate{color:red;float:left;width:100%}#skillList .collection-item{cursor:pointer;transition:all .3s linear}#skillList .selected{background:#64b5f6;color:#fff}

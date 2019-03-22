@@ -66,24 +66,24 @@ function clearFields() {
 function filter(selectedFilter) {
     $("#geekList").find("li").each(function () {
         if (!selectedFilter) {
-            $(this).show();
+            $(this).show(500);
             return true;
         }
         var skillList = $(this).attr("skillList");
         var splitSkillList = skillList.split(",");
 
         if (jQuery.inArray(selectedFilter, splitSkillList) != -1) {
-            $(this).show();
+            $(this).show(500);
         }
         else {
-            $(this).hide();
+            $(this).hide(500);
         }
     });
 }
 
 function resetFilter() {
     $("#skillList").find("li").removeClass("selected");
-    $("#geekList").find("li").show();
+    $("#geekList").find("li").show(500);
     selectedFilter = null;
 }
 
