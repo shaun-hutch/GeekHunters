@@ -2,6 +2,7 @@
 using GeekHunters.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -15,7 +16,6 @@ namespace GeekHunters.Web.Controllers
         {
             return View("Home");
         }
-
         public ActionResult Candidates()
         {
             DB db = DB.Instance;
@@ -36,10 +36,34 @@ namespace GeekHunters.Web.Controllers
 
             if (!string.IsNullOrEmpty(skills.FirstOrDefault().Error))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, skills.FirstOrDefault().Error);
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, skills.FirstOrDefault().Error);
             }
 
             return Json(skills, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public HttpStatusCodeResult AddCandidate(string firstName, string lastName, string skillList)
+        {
+            try
+            {
+                DB db = DB.Instance;
+                int newCandidateId = db.AddCandidate(firstName, lastName, skillList);
+
+                if (newCandidateId > 0)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.OK, newCandidateId.ToString());
+                }
+                else
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Candidate unable to be inserted into DB.");
+                }
+
+            }
+            catch (SQLiteException ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }

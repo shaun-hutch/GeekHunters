@@ -10,6 +10,7 @@ namespace GeekHunters.Web.Code
     public class DB
     {
         private static DB instance;
+        private static readonly object LockObj = new object();
 
         private DB() { }
 
@@ -38,27 +39,30 @@ namespace GeekHunters.Web.Code
             List<Candidate> candidates = new List<Candidate>();
             try
             {
-                using (SQLiteConnection con = Load())
+                lock(LockObj)
                 {
-                    con.Open();
-                    using (SQLiteCommand cmd = new SQLiteCommand(con))
+                    using (SQLiteConnection con = Load())
                     {
-                        cmd.CommandText = "SELECT Id, FirstName, LastName FROM Candidate";
-                        SQLiteDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
+                        con.Open();
+                        using (SQLiteCommand cmd = new SQLiteCommand(con))
                         {
-                            candidates.Add(new Candidate()
+                            cmd.CommandText = "SELECT Id, FirstName, LastName, Skills FROM Candidate";
+                            SQLiteDataReader reader = cmd.ExecuteReader();
+                            while (reader.Read())
                             {
-                                Id = int.Parse(reader["Id"].ToString()),
-                                FirstName = reader["FirstName"].ToString(),
-                                LastName = reader["LastName"].ToString()
-                            });
+                                candidates.Add(new Candidate()
+                                {
+                                    Id = int.Parse(reader["Id"].ToString()),
+                                    FirstName = reader["FirstName"].ToString(),
+                                    LastName = reader["LastName"].ToString(),
+                                    Skills = reader["Skills"].ToString()
+                                });
+                            }
                         }
+                        con.Close();
                     }
-                    con.Close();
                 }
             }
-
             catch (SQLiteException ex)
             {
                 return new List<Candidate> { new Candidate() { Error = ex.Message } };
@@ -71,24 +75,26 @@ namespace GeekHunters.Web.Code
             List<Skill> skills = new List<Skill>();
             try
             {
-                using (SQLiteConnection con = Load())
+                lock (LockObj)
                 {
-                    con.Open();
-                    using (SQLiteCommand cmd = new SQLiteCommand(con))
+                    using (SQLiteConnection con = Load())
                     {
-                        cmd.CommandText = "SELECT Id, Name FROM Skill";
-                        SQLiteDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
+                        con.Open();
+                        using (SQLiteCommand cmd = new SQLiteCommand(con))
                         {
-                            skills.Add(new Skill()
+                            cmd.CommandText = "SELECT Id, Name FROM Skill";
+                            SQLiteDataReader reader = cmd.ExecuteReader();
+                            while (reader.Read())
                             {
-                                Id = int.Parse(reader["Id"].ToString()),
-                                Name = reader["Name"].ToString()
-                            });
+                                skills.Add(new Skill()
+                                {
+                                    Id = int.Parse(reader["Id"].ToString()),
+                                    Name = reader["Name"].ToString()
+                                });
+                            }
                         }
-
+                        con.Close();
                     }
-                    con.Close();
                 }
             }
 
@@ -97,6 +103,40 @@ namespace GeekHunters.Web.Code
                 return new List<Skill> { new Skill() { Error = ex.Message } };
             }
             return skills;
+        }
+
+        public int AddCandidate(string firstName, string lastName, string skillList)
+        {
+            int CandidateId = 0;
+            try
+            {
+                lock (LockObj)
+                {
+                    using (SQLiteConnection con = Load())
+                    {
+                        con.Open();
+                        using (SQLiteCommand cmd = new SQLiteCommand(con))
+                        {
+                            cmd.CommandText = $"INSERT INTO Candidate(FirstName, LastName, Skills) VALUES ('{firstName}','{lastName}', '{skillList}')";
+                            cmd.ExecuteNonQuery();
+
+                            //NEED TO GET THE NEWLY INSERTED CANDIDATE ID TO RETURN BACK
+                            cmd.CommandText = "SELECT last_insert_rowid()";
+                            object lastId = cmd.ExecuteScalar();
+                            CandidateId = int.Parse(lastId.ToString());
+                        }
+                        con.Close();
+                    }
+                }
+            }
+
+            catch (SQLiteException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return 0;
+            }
+
+            return CandidateId;
         }
 
 
