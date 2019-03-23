@@ -11,27 +11,40 @@ namespace GeekHunters.Web.Code
     {
         private static DB instance;
         private static readonly object LockObj = new object();
+        private static string dbPath;
 
         private DB() { }
 
-        public static DB Instance
+        private DB(string _dbPath)
+        {
+            dbPath = _dbPath;
+        }
+        public static DB Instance()
+        {
+            if (instance == null)
+            {
+                instance = new DB(dbPath);
+            }
+
+            return instance;
+        }
+
+        public static DB Instance(string _dbPath)
+        {
+            if (instance == null)
+            {
+                instance = new DB(_dbPath);
+            }
+
+            return instance;
+        }
+
+        private static SQLiteConnection DBConnection
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new DB();
-                }
-
-                return instance;
+                return new SQLiteConnection($"Data Source={Path.Combine(dbPath, "GeekHunter.sqlite")}", true);
             }
-        }
-
-        private static SQLiteConnection Load()
-        {
-            //Path relative to file
-            string dbPath = HttpContext.Current.Server.MapPath("~");
-            return new SQLiteConnection($"Data Source={Path.Combine(dbPath, "GeekHunter.sqlite")}", true);
         }
 
         public List<Candidate> GetCandidates()
@@ -41,7 +54,7 @@ namespace GeekHunters.Web.Code
             {
                 lock(LockObj)
                 {
-                    using (SQLiteConnection con = Load())
+                    using (SQLiteConnection con = DBConnection)
                     {
                         con.Open();
                         using (SQLiteCommand cmd = new SQLiteCommand(con))
@@ -77,7 +90,7 @@ namespace GeekHunters.Web.Code
             {
                 lock (LockObj)
                 {
-                    using (SQLiteConnection con = Load())
+                    using (SQLiteConnection con = DBConnection)
                     {
                         con.Open();
                         using (SQLiteCommand cmd = new SQLiteCommand(con))
@@ -112,12 +125,12 @@ namespace GeekHunters.Web.Code
             {
                 lock (LockObj)
                 {
-                    using (SQLiteConnection con = Load())
+                    using (SQLiteConnection con = DBConnection)
                     {
                         con.Open();
                         using (SQLiteCommand cmd = new SQLiteCommand(con))
                         {
-                            cmd.CommandText = $"INSERT INTO Candidate(FirstName, LastName, Skills) VALUES ('{firstName}','{lastName}', '{skillList}')";
+                            cmd.CommandText = $"INSERT INTO Candidate(FirstName, LastName, Skills) VALUES ('{firstName ?? DBNull.Value.ToString()}','{lastName ?? DBNull.Value.ToString()}', '{skillList ?? DBNull.Value.ToString()}')";
                             cmd.ExecuteNonQuery();
 
                             //NEED TO GET THE NEWLY INSERTED CANDIDATE ID TO RETURN BACK
@@ -133,7 +146,7 @@ namespace GeekHunters.Web.Code
             catch (SQLiteException ex)
             {
                 Console.WriteLine(ex.Message);
-                return 0;
+                throw;
             }
 
             return CandidateId;

@@ -6,6 +6,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using System.Web;
 
 namespace GeekHunters.Web.Controllers
 {
@@ -18,7 +19,7 @@ namespace GeekHunters.Web.Controllers
         }
         public ActionResult Candidates()
         {
-            DB db = DB.Instance;
+            DB db = DB.Instance(Global.dbPath);
             List<Candidate> candidates = db.GetCandidates();
 
             if (!string.IsNullOrEmpty(candidates.FirstOrDefault().Error))
@@ -31,7 +32,7 @@ namespace GeekHunters.Web.Controllers
 
         public ActionResult Skills()
         {
-            DB db = DB.Instance;
+            DB db = DB.Instance(Global.dbPath);
             List<Skill> skills = db.GetSkills();
 
             if (!string.IsNullOrEmpty(skills.FirstOrDefault().Error))
@@ -47,7 +48,7 @@ namespace GeekHunters.Web.Controllers
         {
             try
             {
-                DB db = DB.Instance;
+                DB db = DB.Instance(Global.dbPath);
                 int newCandidateId = db.AddCandidate(firstName, lastName, skillList);
 
                 if (newCandidateId > 0)
