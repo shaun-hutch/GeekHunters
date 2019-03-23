@@ -23,3 +23,16 @@ README.md of your fork.
 Good luck!
 
 P.S: And unit tests! We love unit tests!
+
+# Shaun Hutchinson - Geek Hunters Test
+
+Technologies used:
+	- ASP.NET MVC in .NET Framework 4.7.2
+	- [System.Data.Sqlite Nuget package](https://system.data.sqlite.org/)
+	- [jQuery](https://jquery.com/)
+	- [Materialize CSS framework](https://materializecss.com/)
+	- LESS compiler for custom CSS
+
+The application is a simple SPA which contain simple lists for Candidates and Skills, along with a small form to add a new candidate and their skills from a multi-select dropdown. To filter by skill, simply click on any of the skills in the list, and the candidate list will filter out those who have that skill.
+
+I added an extra column into the Candidate table in the GeekHunter.sqlite file, which stores the skills as a comma delimited list. A simple comparison is done in the javascript, comparing if the Skill ID is in the comma delimited list.
