@@ -130,7 +130,10 @@ namespace GeekHunters.Web.Code
                         con.Open();
                         using (SQLiteCommand cmd = new SQLiteCommand(con))
                         {
-                            cmd.CommandText = $"INSERT INTO Candidate(FirstName, LastName, Skills) VALUES ('{firstName ?? DBNull.Value.ToString()}','{lastName ?? DBNull.Value.ToString()}', '{skillList ?? DBNull.Value.ToString()}')";
+                            cmd.CommandText = $"INSERT INTO Candidate(FirstName, LastName, Skills) VALUES (@FirstName, @LastName, @Skills)";
+                            cmd.Parameters.AddWithValue("@FirstName", firstName);
+                            cmd.Parameters.AddWithValue("@LastName", lastName);
+                            cmd.Parameters.AddWithValue("@Skills", skillList);
                             cmd.ExecuteNonQuery();
 
                             //NEED TO GET THE NEWLY INSERTED CANDIDATE ID TO RETURN BACK
