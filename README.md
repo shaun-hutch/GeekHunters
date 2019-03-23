@@ -35,4 +35,4 @@ Technologies used:
 
 The application is a simple SPA which contain simple lists for Candidates and Skills, along with a small form to add a new candidate and their skills from a multi-select dropdown. To filter by skill, simply click on any of the skills in the list, and the candidate list will filter out those who have that skill.
 
-I added an extra column into the Candidate table in the GeekHunter.sqlite file, which stores the skills as a comma delimited list. A simple comparison is done in the javascript, comparing if the Skill ID is in the comma delimited list.
+I added an extra column into the Candidate table in the GeekHunter.sqlite file, which stores the skills as a comma delimited list. A simple comparison is done in the JavaScript, comparing if the Skill ID is in the comma delimited list.
